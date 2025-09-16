@@ -1,0 +1,24 @@
+{
+  "name": "club-social-media-manager",
+  "version": "1.0.0",
+  "description": "クラブ活動のSNS広報を効率化するツール - 広報補佐うさこ",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run dev --workspace=backend",
+    "build": "npm run build --workspace=frontend && npm run build --workspace=backend",
+    "deploy": "npm run deploy --workspace=backend",
+    "setup": "npm install && npm run setup --workspace=frontend && npm run setup --workspace=backend"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
