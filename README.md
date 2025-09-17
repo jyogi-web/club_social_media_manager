@@ -16,53 +16,47 @@
 - **データベース**: Cloudflare Workers KV
 - **AI**: Gemini API, Cloudflare AI
 
-## セットアップ
+## 📚 ドキュメント
 
-### 1. 依存関係のインストール
+- [📖 セットアップガイド](./docs/setup.md) - 初期設定とデプロイ手順
+- [🚀 使用方法](./docs/usage.md) - アプリケーションの使い方
+- [🏗️ アーキテクチャ](./docs/architecture.md) - システム構成と技術詳細
+- [💻 開発ガイド](./docs/development.md) - 開発環境とコントリビューション
+
+## 🚀 クイックスタート
+
 ```bash
+# 1. リポジトリのクローン
+git clone https://github.com/your-username/club_social_media_manager.git
+cd club_social_media_manager
+
+# 2. 依存関係のインストール
 npm install
-```
 
-### 2. 環境変数の設定
+# 3. 開発サーバーの起動
+npm run dev              # フロントエンド (localhost:3000)
+npm run dev:backend      # バックエンド (localhost:8787)
 
-`wrangler.toml`ファイルを編集し、以下の環境変数を設定してください：
-
-```bash
-# Cloudflare Workers環境変数の設定
-npx wrangler secret put GEMINI_API_KEY
-npx wrangler secret put DISCORD_WEBHOOK_URL
-npx wrangler secret put AUTH_SECRET
-```
-
-### 3. KV Namespaceの作成
-
-```bash
-npx wrangler kv:namespace create "CLUB_KV"
-```
-
-作成されたNamespace IDを`wrangler.toml`の`kv_namespaces`セクションに設定してください。
-
-### 4. 開発環境の起動
-
-#### フロントエンド
-```bash
-npm run dev
-```
-
-#### バックエンド
-```bash
-npm run dev:backend
-```
-
-### 5. デプロイ
-
-```bash
+# 4. デプロイ
 npm run deploy
 ```
 
-## TODO
+詳細な設定方法は [セットアップガイド](./docs/setup.md) をご覧ください。
 
-- [ ] 団体IDとパスワードの初期設定機能
-- [ ] AI チェック精度の向上
-- [ ] Discord通知テンプレートのカスタマイズ機能
-- [ ] 投稿履歴の表示機能
+## 🎯 主な機能
+
+- 🔐 **安全な認証**: 団体IDとパスワードによる認証
+- 🤖 **AI分析**: Gemini API + Cloudflare AI による投稿内容チェック
+- 📢 **Discord通知**: レビュー依頼の自動通知
+- 🐦 **Twitter連携**: Web Intentsによる投稿補助
+- 📱 **レスポンシブUI**: モバイル対応のモダンなUI
+
+## 🏃‍♂️ 使用方法
+
+1. **ログイン**: 団体IDとパスワードを入力
+2. **投稿作成**: テキストと画像を入力
+3. **AIチェック**: 自動で内容を分析
+4. **レビュー依頼**: Discord でチームに確認依頼
+5. **投稿実行**: Twitter で投稿
+
+詳しくは [使用方法ドキュメント](./docs/usage.md) をご確認ください。
