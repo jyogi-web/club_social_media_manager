@@ -32,11 +32,13 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const backendUrl = 'https://club-social-media-manager-backend.jyogi-web.workers.dev';
+            
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '🚀 Backend build successful! Ready for preview deployment.'
+              body: `🚀 **Backend build successful!**\n\n🔧 **Backend API**: [${backendUrl}](${backendUrl})\n\n✅ Ready for deployment to Cloudflare Workers.`
             })
 
   preview-frontend:
@@ -62,13 +64,50 @@ jobs:
           cd frontend
           npm run build
 
+      - name: Deploy to Cloudflare Pages (if configured)
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        continue-on-error: true
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: 'frontend'
+          command: pages deploy dist --project-name=club-social-media-manager-frontend --compatibility-date=2024-01-01
+
       - name: Comment PR with preview link
         uses: actions/github-script@v7
         with:
           script: |
+            const pr = context.payload.pull_request;
+            const shortSha = pr.head.sha.substring(0, 8);
+            
+            let message = '✅ **Build completed successfully!**\n\n';
+            
+            // バックエンドURL（固定）
+            const backendUrl = 'https://club-social-media-manager-backend.jyogi-web.workers.dev';
+            
+            // フロントエンドURL（Cloudflare Pages）
+            const frontendUrl = `https://${shortSha}.club-social-media-manager-frontend.pages.dev`;
+            const fallbackUrl = 'https://club-social-media-manager-frontend.pages.dev';
+            
+            message += '🔗 **Preview URLs:**\n';
+            message += `- 📱 **Frontend**: [${frontendUrl}](${frontendUrl})\n`;
+            message += `- 🔧 **Backend API**: [${backendUrl}](${backendUrl})\n`;
+            message += `- 📄 **Main Site**: [${fallbackUrl}](${fallbackUrl})\n\n`;
+            
+            message += '---\n';
+            message += `🚀 **Commit**: \`${shortSha}\`\n`;
+            message += `📦 **Branch**: \`${pr.head.ref}\``;
+            
+            // デプロイが成功した場合の追加情報
+            if ('${{ steps.deploy.outcome }}' === 'success') {
+              message += '\n✅ Cloudflare Pages deployment successful!';
+            } else {
+              message += '\n⚠️ Cloudflare Pages deployment skipped (API token not configured)';
+            }
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '✅ Frontend build successful! Preview deployment would be available with Cloudflare Pages setup.'
+              body: message
             })
