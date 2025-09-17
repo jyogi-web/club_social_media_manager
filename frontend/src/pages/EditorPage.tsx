@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Upload, Sparkles, Send, RotateCcw, CheckCircle, AlertCircle } from "lucide-react"
+import { Upload, Sparkles, Send, RotateCcw, CheckCircle, AlertCircle, Twitter } from "lucide-react"
 
 interface AIAnalysisResponse {
   textAnalysis?: {
@@ -28,6 +28,7 @@ export default function EditorPage() {
   const [analysis, setAnalysis] = useState<AIAnalysisResponse | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isPosting, setIsPosting] = useState(false)
   const [message, setMessage] = useState('')
 
 
@@ -86,6 +87,37 @@ export default function EditorPage() {
       setMessage('レビューリクエストの送信に失敗しました')
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handlePostToTwitter = async () => {
+    if (!text.trim()) {
+      setMessage('投稿テキストを入力してください')
+      return
+    }
+
+    setIsPosting(true)
+    setMessage('')
+
+    try {
+      // Twitter Web Intent URLを生成
+      const encodedText = encodeURIComponent(text)
+      let twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}`
+
+      if (imagePreview) {
+        // 画像がある場合はユーザーに手動での画像追加を促すメッセージを追加
+        const textWithImageNote = `${text}\n\n[画像を手動で添付してください]`
+        const encodedTextWithNote = encodeURIComponent(textWithImageNote)
+        twitterUrl = `https://twitter.com/intent/tweet?text=${encodedTextWithNote}`
+      }
+
+      // 新しいタブでTwitterを開く
+      window.open(twitterUrl, '_blank')
+      setMessage('Twitterの投稿画面を開きました')
+    } catch (error) {
+      setMessage('Twitter投稿画面の表示に失敗しました')
+    } finally {
+      setIsPosting(false)
     }
   }
 
@@ -200,11 +232,35 @@ export default function EditorPage() {
                 実際の投稿がどのように表示されるかを確認できます
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <TwitterPreview
                 text={text}
                 imageUrl={imagePreview}
               />
+
+              {/* Twitter投稿ボタン */}
+              {text.trim() && (
+                <div className="pt-4 border-t border-border/40">
+                  <Button
+                    onClick={handlePostToTwitter}
+                    disabled={isPosting}
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                    size="lg"
+                  >
+                    {isPosting ? (
+                      <>
+                        <Twitter className="h-4 w-4 mr-2 animate-pulse" />
+                        Twitter画面を開いています...
+                      </>
+                    ) : (
+                      <>
+                        <Twitter className="h-4 w-4 mr-2" />
+                        Twitterに投稿
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
