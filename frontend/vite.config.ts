@@ -15,10 +15,10 @@ export default defineConfig({
     port: 3000,
     proxy: {
       "/api": {
-        target: "https://club-social-media-manager-backend.jyogi.workers.dev",
+        target: "http://localhost:8787",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
-        secure: true,
+        secure: false,
       },
     },
   },

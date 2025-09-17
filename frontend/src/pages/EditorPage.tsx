@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Upload, Sparkles, Send, RotateCcw, CheckCircle, AlertCircle, Bird } from "lucide-react"
+import { Upload, Sparkles, Send, RotateCcw, CheckCircle, AlertCircle, Bird, MessageSquare } from "lucide-react"
 
 interface AIAnalysisResponse {
   textAnalysis?: {
@@ -50,6 +50,7 @@ export default function EditorPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isPosting, setIsPosting] = useState(false)
+  const [isSendingDiscord, setIsSendingDiscord] = useState(false)
   const [message, setMessage] = useState('')
 
   // テキストが変更されたらlocalStorageに保存
@@ -163,6 +164,25 @@ export default function EditorPage() {
       setMessage('Twitter投稿画面の表示に失敗しました')
     } finally {
       setIsPosting(false)
+    }
+  }
+
+  const handleSendDiscordPreview = async () => {
+    if (!text.trim()) {
+      setMessage('投稿テキストを入力してください')
+      return
+    }
+
+    setIsSendingDiscord(true)
+    setMessage('')
+
+    try {
+      const result = await apiClient.sendDiscordPreview(text, imagePreview, 'default-club')
+      setMessage('Discordにプレビューを送信しました')
+    } catch (error) {
+      setMessage('Discordプレビュー送信に失敗しました')
+    } finally {
+      setIsSendingDiscord(false)
     }
   }
 
@@ -285,9 +305,9 @@ export default function EditorPage() {
                 imageUrl={imagePreview}
               />
 
-              {/* Twitter投稿ボタン */}
+              {/* Action Buttons */}
               {text.trim() && (
-                <div className="pt-4 border-t border-border/40">
+                <div className="pt-4 border-t border-border/40 space-y-3">
                   <Button
                     onClick={handlePostToTwitter}
                     disabled={isPosting}
@@ -303,6 +323,24 @@ export default function EditorPage() {
                       <>
                         <Bird className="h-4 w-4 mr-2" />
                         Twitterに投稿
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={handleSendDiscordPreview}
+                    disabled={isSendingDiscord}
+                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white"
+                    size="lg"
+                  >
+                    {isSendingDiscord ? (
+                      <>
+                        <MessageSquare className="h-4 w-4 mr-2 animate-pulse" />
+                        Discordに送信中...
+                      </>
+                    ) : (
+                      <>
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Discordでプレビュー
                       </>
                     )}
                   </Button>
