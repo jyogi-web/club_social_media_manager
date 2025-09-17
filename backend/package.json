@@ -3,6 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
+    "build": "echo 'Backend build completed (no build step required for Workers)'",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
