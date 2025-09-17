@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { apiClient } from '../api/apiClient'
 import TwitterPreview from '../components/TwitterPreview'
 import TiptapEditor from '../components/TiptapEditor'
@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Upload, Sparkles, Send, RotateCcw, CheckCircle, AlertCircle, Bird, MessageSquare } from "lucide-react"
+import domtoimage from 'dom-to-image'
 
 interface AIAnalysisResponse {
   textAnalysis?: {
@@ -54,6 +55,7 @@ export default function EditorPage() {
   const [isPosting, setIsPosting] = useState(false)
   const [isSendingDiscord, setIsSendingDiscord] = useState(false)
   const { toasts, showSuccess, showError, removeToast } = useToast()
+  const twitterPreviewRef = useRef<HTMLDivElement>(null)
 
   // テキストが変更されたらlocalStorageに保存
   useEffect(() => {
@@ -172,13 +174,32 @@ export default function EditorPage() {
       return
     }
 
+    if (!twitterPreviewRef.current) {
+      showError('プレビュー要素が見つかりません')
+      return
+    }
+
     setIsSendingDiscord(true)
 
     try {
-      await apiClient.sendDiscordPreview(text, imagePreview, 'default-club')
+      // TwitterPreviewをスクリーンショット（dom-to-imageを使用）
+      const screenshotDataUrl = await domtoimage.toPng(twitterPreviewRef.current, {
+        quality: 1.0,
+        bgcolor: '#ffffff',
+        width: twitterPreviewRef.current.offsetWidth * 2,
+        height: twitterPreviewRef.current.offsetHeight * 2,
+        style: {
+          transform: 'scale(2)',
+          transformOrigin: 'top left',
+        }
+      })
+      
+      // スクリーンショット画像をDiscordに送信
+      await apiClient.sendDiscordPreview('', screenshotDataUrl, 'default-club')
       showSuccess('Discordにプレビューを送信しました')
     } catch (error) {
-      showError('Discordプレビュー送信に失敗しました')
+      console.error('スクリーンショット生成エラー:', error)
+      showError('プレビュー送信に失敗しました')
     } finally {
       setIsSendingDiscord(false)
     }
@@ -289,6 +310,7 @@ export default function EditorPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <TwitterPreview
+                ref={twitterPreviewRef}
                 text={text}
                 imageUrl={imagePreview}
               />

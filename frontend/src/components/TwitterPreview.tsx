@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card } from "@/components/ui/card"
 import { MessageCircle, Repeat2, Heart, Share, MoreHorizontal } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { forwardRef } from "react"
 
 interface TwitterPreviewProps {
   text: string
@@ -11,13 +11,13 @@ interface TwitterPreviewProps {
   avatarUrl?: string
 }
 
-export default function TwitterPreview({
+export default forwardRef<HTMLDivElement, TwitterPreviewProps>(function TwitterPreview({
   text,
   imageUrl,
   userName = "クラブ公式アカウント",
   userHandle = "@club_official",
   avatarUrl = "/hisho_usako.png"
-}: TwitterPreviewProps) {
+}, ref) {
 
   const getCurrentTime = () => {
     const now = new Date()
@@ -38,7 +38,16 @@ export default function TwitterPreview({
   }
 
   return (
-    <Card className="max-w-xl mx-auto p-4 bg-white border border-border/40 rounded-xl shadow-sm">
+    <Card 
+      ref={ref} 
+      data-screenshot-target="true"
+      className="max-w-xl mx-auto p-4 bg-white border border-gray-300 rounded-xl shadow-sm"
+      style={{
+        backgroundColor: '#ffffff',
+        borderColor: '#d1d5db',
+        color: '#000000'
+      }}
+    >
       {/* Tweet Header */}
       <div className="flex items-center space-x-3 mb-3">
         <Avatar className="h-10 w-10">
@@ -47,18 +56,18 @@ export default function TwitterPreview({
         </Avatar>
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2">
-            <h3 className="font-semibold text-sm text-foreground truncate">
+            <h3 className="font-semibold text-sm truncate" style={{ color: '#0f172a' }}>
               {userName}
             </h3>
-            <span className="text-muted-foreground text-sm">
+            <span className="text-sm" style={{ color: '#64748b' }}>
               {userHandle}
             </span>
-            <span className="text-muted-foreground text-sm">
+            <span className="text-sm" style={{ color: '#64748b' }}>
               · {getCurrentTime()}
             </span>
           </div>
         </div>
-        <button className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted/50 transition-colors">
+        <button className="p-1 rounded-full transition-colors" style={{ color: '#64748b' }}>
           <MoreHorizontal size={16} />
         </button>
       </div>
@@ -66,13 +75,13 @@ export default function TwitterPreview({
       {/* Tweet Content */}
       <div className="mb-3">
         {text && (
-          <div className="text-foreground text-sm leading-relaxed whitespace-pre-wrap mb-3">
+          <div className="text-sm leading-relaxed whitespace-pre-wrap mb-3" style={{ color: '#0f172a' }}>
             {text}
           </div>
         )}
 
         {imageUrl && (
-          <div className="rounded-xl overflow-hidden border border-border/40 max-w-xs mx-auto">
+          <div className="rounded-xl overflow-hidden border max-w-xs mx-auto" style={{ borderColor: '#d1d5db' }}>
             <img
               src={imageUrl}
               alt="投稿画像"
@@ -83,53 +92,41 @@ export default function TwitterPreview({
       </div>
 
       {/* Tweet Metadata */}
-      <div className="text-muted-foreground text-sm mb-4 pb-4 border-b border-border/40">
+      <div className="text-sm mb-4 pb-4 border-b" style={{ color: '#64748b', borderBottomColor: '#d1d5db' }}>
         {getCurrentDate()} · クラブ管理システム
       </div>
 
       {/* Tweet Stats */}
-      <div className="flex space-x-6 mb-4 pb-4 border-b border-border/40">
+      <div className="flex space-x-6 mb-4 pb-4 border-b" style={{ borderBottomColor: '#d1d5db' }}>
         <div className="flex items-center space-x-1">
-          <span className="font-semibold text-sm text-foreground">12</span>
-          <span className="text-muted-foreground text-sm">リツイート</span>
+          <span className="font-semibold text-sm" style={{ color: '#0f172a' }}>12</span>
+          <span className="text-sm" style={{ color: '#64748b' }}>リツイート</span>
         </div>
         <div className="flex items-center space-x-1">
-          <span className="font-semibold text-sm text-foreground">28</span>
-          <span className="text-muted-foreground text-sm">いいね</span>
+          <span className="font-semibold text-sm" style={{ color: '#0f172a' }}>28</span>
+          <span className="text-sm" style={{ color: '#64748b' }}>いいね</span>
         </div>
         <div className="flex items-center space-x-1">
-          <span className="font-semibold text-sm text-foreground">3</span>
-          <span className="text-muted-foreground text-sm">ブックマーク</span>
+          <span className="font-semibold text-sm" style={{ color: '#0f172a' }}>3</span>
+          <span className="text-sm" style={{ color: '#64748b' }}>ブックマーク</span>
         </div>
       </div>
 
       {/* Tweet Actions */}
       <div className="flex justify-around max-w-md">
-        <button className={cn(
-          "flex items-center justify-center p-2 rounded-full transition-colors",
-          "text-muted-foreground hover:text-blue-500 hover:bg-blue-50"
-        )}>
+        <button className="flex items-center justify-center p-2 rounded-full transition-colors" style={{ color: '#64748b' }}>
           <MessageCircle size={18} />
         </button>
-        <button className={cn(
-          "flex items-center justify-center p-2 rounded-full transition-colors",
-          "text-muted-foreground hover:text-green-500 hover:bg-green-50"
-        )}>
+        <button className="flex items-center justify-center p-2 rounded-full transition-colors" style={{ color: '#64748b' }}>
           <Repeat2 size={18} />
         </button>
-        <button className={cn(
-          "flex items-center justify-center p-2 rounded-full transition-colors",
-          "text-muted-foreground hover:text-red-500 hover:bg-red-50"
-        )}>
+        <button className="flex items-center justify-center p-2 rounded-full transition-colors" style={{ color: '#64748b' }}>
           <Heart size={18} />
         </button>
-        <button className={cn(
-          "flex items-center justify-center p-2 rounded-full transition-colors",
-          "text-muted-foreground hover:text-blue-500 hover:bg-blue-50"
-        )}>
+        <button className="flex items-center justify-center p-2 rounded-full transition-colors" style={{ color: '#64748b' }}>
           <Share size={18} />
         </button>
       </div>
     </Card>
   )
-}
+})

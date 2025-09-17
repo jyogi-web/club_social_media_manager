@@ -49,7 +49,7 @@ export default function TiptapEditor({
     },
   })
 
-  // 半角全角を考慮したbyte数計算
+  // 半角全角を考慮したbyte数計算（Twitter API準拠）
   const calculateTextBytes = (text: string) => {
     let bytes = 0
     for (let i = 0; i < text.length; i++) {
@@ -130,9 +130,12 @@ export default function TiptapEditor({
           <Redo size={14} />
         </Button>
         <div className="flex-1" />
-        <div className={`text-sm ${isOverLimit ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
-          {isOverLimit ? `- ${currentBytes - maxBytes}byte` : `${currentBytes}/${maxBytes}byte`}
-        </div>
+        {/* byte数制限に近づいた時のみ表示（260byte以上で表示） */}
+        {(currentBytes > 260 || isOverLimit) && (
+          <div className={`text-sm ${isOverLimit ? 'text-red-500 font-semibold' : currentBytes > 260 ? 'text-orange-500' : 'text-gray-500'}`}>
+            {isOverLimit ? `${currentBytes - maxBytes}byte オーバー` : `${currentBytes}/${maxBytes}byte`}
+          </div>
+        )}
       </div>
 
       {/* エディター */}

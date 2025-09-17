@@ -90,39 +90,16 @@ app.post('/discord/preview', async (c) => {
 
     if (isDevelopment) {
       console.log('Development mode: returning mock Discord response')
-      console.log('Preview data:', { text: text.substring(0, 50) + '...', clubId })
+      console.log('Preview data:', { hasImage: !!imageUrl, clubId })
       return c.json({
         success: true,
         message: 'Discordにプレビューを送信しました（開発モード）'
       })
     }
 
-    // Discord Embed形式でメッセージを構築
-    const embed = {
-      title: '📝 投稿プレビュー',
-      description: text.length > 2048 ? text.substring(0, 2045) + '...' : text,
-      color: 0x1DA1F2, // Twitterブルー
-      fields: [
-        {
-          name: 'クラブID',
-          value: clubId || 'default-club',
-          inline: true
-        },
-        {
-          name: '文字数',
-          value: `${text.length}/280文字`,
-          inline: true
-        }
-      ],
-      timestamp: new Date().toISOString(),
-      footer: {
-        text: 'クラブソーシャルメディア管理システム'
-      }
-    }
-
     let response: Response
 
-    // 画像がbase64形式の場合はファイル添付として送信
+    // スクリーンショット画像が送信された場合
     if (imageUrl && imageUrl.startsWith('data:image/')) {
       // base64データを抽出
       const [header, base64Data] = imageUrl.split(',')
@@ -138,15 +115,11 @@ app.post('/discord/preview', async (c) => {
 
       // FormDataで画像ファイルとして送信
       const formData = new FormData()
-      const imageFile = new File([bytes], `image.${extension}`, { type: mimeType })
+      const imageFile = new File([bytes], `twitter_preview.${extension}`, { type: mimeType })
       formData.append('files[0]', imageFile)
 
       const payloadJson = {
-        content: '新しい投稿のプレビューです：',
-        embeds: [{
-          ...embed,
-          image: { url: 'attachment://image.' + extension }
-        }]
+        content: '新しい投稿のプレビューです 🐦'
       }
       formData.append('payload_json', JSON.stringify(payloadJson))
 
@@ -155,6 +128,17 @@ app.post('/discord/preview', async (c) => {
         body: formData
       })
     } else {
+      // テキストのみの場合（従来通り）
+      const embed = {
+        title: '📝 投稿プレビュー',
+        description: text.length > 2048 ? text.substring(0, 2045) + '...' : text,
+        color: 0x1DA1F2, // Twitterブルー
+        timestamp: new Date().toISOString(),
+        footer: {
+          text: 'クラブソーシャルメディア管理システム'
+        }
+      }
+
       // 画像URLがある場合はembedに追加
       if (imageUrl) {
         (embed as any).image = { url: imageUrl }
@@ -165,7 +149,6 @@ app.post('/discord/preview', async (c) => {
         embeds: [embed]
       }
 
-      // JSON形式で送信
       response = await fetch(env.DISCORD_WEBHOOK_URL!, {
         method: 'POST',
         headers: {
