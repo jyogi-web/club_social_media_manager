@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { CheckCircle, AlertCircle, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -13,6 +13,14 @@ export default function Toast({ message, type = 'info', duration = 3000, onClose
   const [isVisible, setIsVisible] = useState(false)
   const [isLeaving, setIsLeaving] = useState(false)
 
+  const handleClose = useCallback(() => {
+    setIsLeaving(true)
+    setTimeout(() => {
+      setIsVisible(false)
+      onClose()
+    }, 300) // アニメーション時間
+  }, [onClose])
+
   useEffect(() => {
     // マウント時にアニメーション開始
     setIsVisible(true)
@@ -23,15 +31,7 @@ export default function Toast({ message, type = 'info', duration = 3000, onClose
     }, duration)
 
     return () => clearTimeout(timer)
-  }, [duration])
-
-  const handleClose = () => {
-    setIsLeaving(true)
-    setTimeout(() => {
-      setIsVisible(false)
-      onClose()
-    }, 300) // アニメーション時間
-  }
+  }, [duration, handleClose])
 
   const getIcon = () => {
     switch (type) {

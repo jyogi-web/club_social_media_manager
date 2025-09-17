@@ -109,7 +109,7 @@ export default function EditorPage() {
       const result = await apiClient.analyzeContent(text, image)
       setAnalysis(result)
       showSuccess('分析が完了しました')
-    } catch (error) {
+    } catch {
       showError('分析に失敗しました')
     } finally {
       setIsAnalyzing(false)
@@ -131,7 +131,7 @@ export default function EditorPage() {
         aiAnalysis: analysis
       })
       showSuccess('レビューリクエストを送信しました')
-    } catch (error) {
+    } catch {
       showError('レビューリクエストの送信に失敗しました')
     } finally {
       setIsSubmitting(false)
@@ -161,7 +161,7 @@ export default function EditorPage() {
       // 新しいタブでTwitterを開く
       window.open(twitterUrl, '_blank')
       showSuccess('Twitterの投稿画面を開きました')
-    } catch (error) {
+    } catch {
       showError('Twitter投稿画面の表示に失敗しました')
     } finally {
       setIsPosting(false)

@@ -54,6 +54,7 @@ export default function TiptapEditor({
     let bytes = 0
     for (let i = 0; i < text.length; i++) {
       const char = text.charAt(i)
+      // eslint-disable-next-line no-control-regex
       if (char.match(/[\x00-\x7F]/)) {
         bytes += 1 // 半角文字
       } else {
