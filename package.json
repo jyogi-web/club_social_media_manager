@@ -10,11 +10,17 @@
   "scripts": {
     "dev": "npm run dev --workspace=frontend",
     "dev:backend": "npm run dev --workspace=backend",
+    "dev:all": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
     "build": "npm run build --workspace=frontend && npm run build --workspace=backend",
+    "test": "npm run test:run --workspace=frontend && npm run test:run --workspace=backend",
+    "test:coverage": "npm run test:coverage --workspace=frontend && npm run test:coverage --workspace=backend",
+    "lint": "npm run lint --workspace=frontend",
+    "typecheck": "npm run typecheck --workspace=frontend && npx tsc --noEmit --project backend/tsconfig.json",
     "deploy": "./deploy.sh all",
     "deploy:backend": "./deploy.sh backend",
     "deploy:frontend": "./deploy.sh frontend",
-    "setup": "npm install && npm run setup --workspace=frontend && npm run setup --workspace=backend"
+    "setup": "npm install && npm run setup --workspace=frontend && npm run setup --workspace=backend",
+    "clean": "rm -rf frontend/node_modules frontend/dist backend/node_modules backend/dist"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
