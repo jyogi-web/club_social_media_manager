@@ -79,6 +79,17 @@ class APIClient {
       body: JSON.stringify({ clubId, ...reviewData })
     })
   }
+
+  async sendDiscordPreview(text: string, imageUrl: string | null, clubId: string = 'default-club'): Promise<{ success: boolean; message: string }> {
+    return this.makeRequest<{ success: boolean; message: string }>('/discord/preview', {
+      method: 'POST',
+      body: JSON.stringify({
+        text,
+        imageUrl,
+        clubId
+      })
+    })
+  }
 }
 
 export const apiClient = new APIClient()

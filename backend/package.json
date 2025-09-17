@@ -5,12 +5,20 @@
     "dev": "wrangler dev",
     "build": "echo 'Backend build completed (no build step required for Workers)'",
     "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "hono": "^4.9.7"
   },
   "devDependencies": {
+    "@types/node": "^20.19.16",
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4",
     "wrangler": "^4.4.0"
   }
 }
