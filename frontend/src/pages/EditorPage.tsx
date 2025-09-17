@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { apiClient } from '../api/apiClient'
 import TwitterPreview from '../components/TwitterPreview'
 import TiptapEditor from '../components/TiptapEditor'
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Upload, Sparkles, Send, RotateCcw, CheckCircle, AlertCircle, Twitter } from "lucide-react"
+import { Upload, Sparkles, Send, RotateCcw, CheckCircle, AlertCircle, Bird } from "lucide-react"
 
 interface AIAnalysisResponse {
   textAnalysis?: {
@@ -22,7 +22,28 @@ interface AIAnalysisResponse {
 }
 
 export default function EditorPage() {
-  const [text, setText] = useState('')
+  // localStorageのキー
+  const STORAGE_KEY = 'social_media_draft'
+
+  // localStorage から初期値を取得する関数
+  const getInitialText = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        const { text: savedText, timestamp } = JSON.parse(saved)
+        // 24時間以内の下書きのみ復元
+        const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000
+        if (timestamp > oneDayAgo && savedText.trim()) {
+          return savedText
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load draft from localStorage:', error)
+    }
+    return ''
+  }
+
+  const [text, setText] = useState(() => getInitialText())
   const [image, setImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [analysis, setAnalysis] = useState<AIAnalysisResponse | null>(null)
@@ -30,6 +51,30 @@ export default function EditorPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isPosting, setIsPosting] = useState(false)
   const [message, setMessage] = useState('')
+
+  // テキストが変更されたらlocalStorageに保存
+  useEffect(() => {
+    if (text.trim()) {
+      try {
+        const draftData = {
+          text,
+          timestamp: Date.now()
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(draftData))
+      } catch (error) {
+        console.error('Failed to save draft to localStorage:', error)
+      }
+    }
+  }, [text])
+
+  // 下書きクリア関数
+  const clearDraft = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch (error) {
+      console.error('Failed to clear draft from localStorage:', error)
+    }
+  }
 
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,6 +172,7 @@ export default function EditorPage() {
     setImagePreview(null)
     setAnalysis(null)
     setMessage('')
+    clearDraft()
   }
 
   return (
@@ -160,6 +206,7 @@ export default function EditorPage() {
                   onChange={setText}
                   placeholder="投稿したいテキストを入力してください..."
                   maxBytes={280}
+                  initialContent={text}
                 />
               </div>
 
@@ -249,12 +296,12 @@ export default function EditorPage() {
                   >
                     {isPosting ? (
                       <>
-                        <Twitter className="h-4 w-4 mr-2 animate-pulse" />
+                        <Bird className="h-4 w-4 mr-2 animate-pulse" />
                         Twitter画面を開いています...
                       </>
                     ) : (
                       <>
-                        <Twitter className="h-4 w-4 mr-2" />
+                        <Bird className="h-4 w-4 mr-2" />
                         Twitterに投稿
                       </>
                     )}

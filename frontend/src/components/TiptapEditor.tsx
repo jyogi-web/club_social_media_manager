@@ -14,13 +14,15 @@ interface TiptapEditorProps {
   onChange: (content: string) => void
   placeholder?: string
   maxBytes?: number
+  initialContent?: string
 }
 
 export default function TiptapEditor({
   content,
   onChange,
   placeholder = "投稿したいテキストを入力してください...",
-  maxBytes = 280
+  maxBytes = 280,
+  initialContent
 }: TiptapEditorProps) {
   const editor = useEditor({
     extensions: [
@@ -36,7 +38,7 @@ export default function TiptapEditor({
         limit: maxBytes,
       }),
     ],
-    content,
+    content: initialContent || content,
     onUpdate: ({ editor }) => {
       onChange(editor.getText())
     },
