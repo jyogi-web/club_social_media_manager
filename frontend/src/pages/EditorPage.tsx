@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { apiClient } from '../api/apiClient'
 import TwitterPreview from '../components/TwitterPreview'
 import TiptapEditor from '../components/TiptapEditor'
+import Toast from '../components/Toast'
+import { useToast } from '../hooks/useToast'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -51,7 +53,7 @@ export default function EditorPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isPosting, setIsPosting] = useState(false)
   const [isSendingDiscord, setIsSendingDiscord] = useState(false)
-  const [message, setMessage] = useState('')
+  const { toasts, showSuccess, showError, removeToast } = useToast()
 
   // テキストが変更されたらlocalStorageに保存
   useEffect(() => {
@@ -95,19 +97,18 @@ export default function EditorPage() {
 
   const handleAnalyze = async () => {
     if (!text.trim() && !image) {
-      setMessage('テキストまたは画像を入力してください')
+      showError('テキストまたは画像を入力してください')
       return
     }
 
     setIsAnalyzing(true)
-    setMessage('')
 
     try {
       const result = await apiClient.analyzeContent(text, image)
       setAnalysis(result)
-      setMessage('分析が完了しました')
+      showSuccess('分析が完了しました')
     } catch (error) {
-      setMessage('分析に失敗しました')
+      showError('分析に失敗しました')
     } finally {
       setIsAnalyzing(false)
     }
@@ -115,12 +116,11 @@ export default function EditorPage() {
 
   const handleSubmitForReview = async () => {
     if (!analysis) {
-      setMessage('まず分析を実行してください')
+      showError('まず分析を実行してください')
       return
     }
 
     setIsSubmitting(true)
-    setMessage('')
 
     try {
       await apiClient.requestReview('default-club', {
@@ -128,9 +128,9 @@ export default function EditorPage() {
         imageUrl: imagePreview,
         aiAnalysis: analysis
       })
-      setMessage('レビューリクエストを送信しました')
+      showSuccess('レビューリクエストを送信しました')
     } catch (error) {
-      setMessage('レビューリクエストの送信に失敗しました')
+      showError('レビューリクエストの送信に失敗しました')
     } finally {
       setIsSubmitting(false)
     }
@@ -138,12 +138,11 @@ export default function EditorPage() {
 
   const handlePostToTwitter = async () => {
     if (!text.trim()) {
-      setMessage('投稿テキストを入力してください')
+      showError('投稿テキストを入力してください')
       return
     }
 
     setIsPosting(true)
-    setMessage('')
 
     try {
       // Twitter Web Intent URLを生成
@@ -159,9 +158,9 @@ export default function EditorPage() {
 
       // 新しいタブでTwitterを開く
       window.open(twitterUrl, '_blank')
-      setMessage('Twitterの投稿画面を開きました')
+      showSuccess('Twitterの投稿画面を開きました')
     } catch (error) {
-      setMessage('Twitter投稿画面の表示に失敗しました')
+      showError('Twitter投稿画面の表示に失敗しました')
     } finally {
       setIsPosting(false)
     }
@@ -169,18 +168,17 @@ export default function EditorPage() {
 
   const handleSendDiscordPreview = async () => {
     if (!text.trim()) {
-      setMessage('投稿テキストを入力してください')
+      showError('投稿テキストを入力してください')
       return
     }
 
     setIsSendingDiscord(true)
-    setMessage('')
 
     try {
-      const result = await apiClient.sendDiscordPreview(text, imagePreview, 'default-club')
-      setMessage('Discordにプレビューを送信しました')
+      await apiClient.sendDiscordPreview(text, imagePreview, 'default-club')
+      showSuccess('Discordにプレビューを送信しました')
     } catch (error) {
-      setMessage('Discordプレビュー送信に失敗しました')
+      showError('Discordプレビュー送信に失敗しました')
     } finally {
       setIsSendingDiscord(false)
     }
@@ -191,7 +189,6 @@ export default function EditorPage() {
     setImage(null)
     setImagePreview(null)
     setAnalysis(null)
-    setMessage('')
     clearDraft()
   }
 
@@ -248,15 +245,6 @@ export default function EditorPage() {
                     </p>
                   </label>
                 </div>
-                {imagePreview && (
-                  <div className="mt-4">
-                    <img
-                      src={imagePreview}
-                      alt="プレビュー"
-                      className="max-w-full h-auto rounded-lg shadow-md"
-                    />
-                  </div>
-                )}
               </div>
 
               {/* Action Buttons */}
@@ -459,27 +447,16 @@ export default function EditorPage() {
           </Card>
         )}
 
-        {/* Message */}
-        {message && (
-          <Card className={`shadow-lg ${message.includes('失敗') || message.includes('エラー')
-            ? 'border-red-200 bg-red-50'
-            : 'border-green-200 bg-green-50'}`}>
-            <CardContent className="pt-6">
-              <div className={`flex items-center gap-2 font-medium ${
-                message.includes('失敗') || message.includes('エラー')
-                  ? 'text-red-700'
-                  : 'text-green-700'
-              }`}>
-                {message.includes('失敗') || message.includes('エラー') ? (
-                  <AlertCircle className="h-5 w-5" />
-                ) : (
-                  <CheckCircle className="h-5 w-5" />
-                )}
-                {message}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Toast通知 */}
+        {toasts.map(toast => (
+          <Toast
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            duration={toast.duration}
+            onClose={() => removeToast(toast.id)}
+          />
+        ))}
       </div>
     </div>
   )

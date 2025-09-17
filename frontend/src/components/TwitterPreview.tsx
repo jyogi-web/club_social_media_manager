@@ -72,11 +72,11 @@ export default function TwitterPreview({
         )}
 
         {imageUrl && (
-          <div className="rounded-xl overflow-hidden border border-border/40">
+          <div className="rounded-xl overflow-hidden border border-border/40 max-w-xs mx-auto">
             <img
               src={imageUrl}
               alt="投稿画像"
-              className="w-full h-auto object-cover"
+              className="w-full h-auto object-contain"
             />
           </div>
         )}
