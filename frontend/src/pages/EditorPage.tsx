@@ -4,6 +4,7 @@ import TwitterPreview from '../components/TwitterPreview'
 import TiptapEditor from '../components/TiptapEditor'
 import Toast from '../components/Toast'
 import { useToast } from '../hooks/useToast'
+import { useSEO } from '../hooks/useSEO'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -25,6 +26,31 @@ interface AIAnalysisResponse {
 }
 
 export default function EditorPage() {
+  // SEO設定
+  useSEO({
+    title: '投稿エディター - Club Social Media Manager',
+    description: 'SNS投稿の事前審査システム。AI分析とプレビュー機能で投稿を最適化し、Discord連携で効率的に管理。',
+    ogp: {
+      title: '投稿エディター - Club Social Media Manager',
+      description: 'SNS投稿の事前審査システム。AI分析とプレビュー機能で投稿を最適化し、Discord連携で効率的に管理。',
+      url: `${window.location.origin}/editor`
+    },
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Club Social Media Manager",
+      "applicationCategory": "SocialNetworkingApplication",
+      "operatingSystem": "Web",
+      "description": "クラブや団体のソーシャルメディア投稿を効率的に管理・作成できるWebアプリケーション",
+      "url": window.location.origin,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "JPY"
+      }
+    }
+  })
+
   // localStorageのキー
   const STORAGE_KEY = 'social_media_draft'
 

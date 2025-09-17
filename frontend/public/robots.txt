@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://club-social-media-manager.pages.dev/sitemap.xml
+
+# Disallow sensitive areas (none for this public app)
