@@ -16,14 +16,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: 'backend/package-lock.json'
+          node-version: '20'
 
       - name: Install dependencies
         run: |
           cd backend
-          npm ci
+          npm install --prefer-offline
 
       - name: Build backend
         run: |
@@ -52,37 +50,25 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: 'frontend/package-lock.json'
+          node-version: '20'
 
       - name: Install dependencies
         run: |
           cd frontend
-          npm ci
+          npm install --prefer-offline
 
       - name: Build frontend
         run: |
           cd frontend
           npm run build
 
-      - name: Deploy Preview to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: 'frontend'
-          command: pages deploy dist --project-name club-social-media-manager-frontend
-
       - name: Comment PR with preview link
         uses: actions/github-script@v7
         with:
           script: |
-            const pr = context.payload.pull_request;
-            const previewUrl = `https://${pr.head.sha.substring(0, 8)}.club-social-media-manager-frontend.pages.dev`;
-
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🎉 Preview deployment ready!\n\n📱 Frontend: ${previewUrl}\n🔧 Backend: https://club-social-media-manager-backend.jyogi.workers.dev`
+              body: '✅ Frontend build successful! Preview deployment would be available with Cloudflare Pages setup.'
             })

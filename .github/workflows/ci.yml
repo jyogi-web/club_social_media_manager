@@ -21,13 +21,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
 
       - name: Install dependencies
         run: |
-          npm install
-          cd frontend && npm install
-          cd ../backend && npm install
+          npm install --prefer-offline
+          cd frontend && npm install --prefer-offline
+          cd ../backend && npm install --prefer-offline
 
       - name: Run tests
         run: npm run test
