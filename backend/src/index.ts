@@ -5,9 +5,24 @@ const app = new Hono()
 
 // CORS設定
 app.use('*', cors({
-  origin: ['http://localhost:5173', 'https://club-social-media-manager.pages.dev'],
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: (origin) => {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'https://club-social-media-manager.pages.dev'
+    ]
+
+    // 許可されたオリジンまたはpages.devサブドメインをチェック
+    if (allowedOrigins.includes(origin) || origin?.endsWith('.pages.dev')) {
+      return origin
+    }
+
+    return null
+  },
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }))
 
 // Discord Webhook URLの型定義

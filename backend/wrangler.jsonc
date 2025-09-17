@@ -6,12 +6,6 @@
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
-  "vars": {
-    "DISCORD_APPLICATION_ID": "",
-    "DISCORD_PUBLIC_KEY": "",
-    "DISCORD_WEBHOOK_URL": "",
-    "GEMINI_API_KEY": ""
-  },
   "kv_namespaces": [
     {
       "binding": "CLUB_KV",
