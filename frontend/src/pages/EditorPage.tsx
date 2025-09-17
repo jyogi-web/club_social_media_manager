@@ -41,7 +41,10 @@ export default function EditorPage() {
         }
       }
     } catch (error) {
-      console.error('Failed to load draft from localStorage:', error)
+      // localStorage読み込みエラーは致命的ではないのでサイレントに処理
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Failed to load draft from localStorage:', error)
+      }
     }
     return ''
   }
@@ -67,7 +70,10 @@ export default function EditorPage() {
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(draftData))
       } catch (error) {
-        console.error('Failed to save draft to localStorage:', error)
+        // localStorage保存エラーは致命的ではないのでサイレントに処理
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Failed to save draft to localStorage:', error)
+        }
       }
     }
   }, [text])
@@ -107,10 +113,17 @@ export default function EditorPage() {
 
     try {
       const result = await apiClient.analyzeContent(text, image)
-      setAnalysis(result)
-      showSuccess('分析が完了しました')
-    } catch {
-      showError('分析に失敗しました')
+      
+      // レスポンスの型チェック
+      if (result && typeof result === 'object') {
+        setAnalysis(result)
+        showSuccess('分析が完了しました')
+      } else {
+        showError('分析結果の形式が正しくありません')
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '分析に失敗しました'
+      showError(message)
     } finally {
       setIsAnalyzing(false)
     }
@@ -131,8 +144,9 @@ export default function EditorPage() {
         aiAnalysis: analysis
       })
       showSuccess('レビューリクエストを送信しました')
-    } catch {
-      showError('レビューリクエストの送信に失敗しました')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'レビューリクエストの送信に失敗しました'
+      showError(message)
     } finally {
       setIsSubmitting(false)
     }
@@ -161,8 +175,9 @@ export default function EditorPage() {
       // 新しいタブでTwitterを開く
       window.open(twitterUrl, '_blank')
       showSuccess('Twitterの投稿画面を開きました')
-    } catch {
-      showError('Twitter投稿画面の表示に失敗しました')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Twitter投稿画面の表示に失敗しました'
+      showError(message)
     } finally {
       setIsPosting(false)
     }

@@ -54,11 +54,23 @@ export default function TiptapEditor({
     let bytes = 0
     for (let i = 0; i < text.length; i++) {
       const char = text.charAt(i)
-      // eslint-disable-next-line no-control-regex
-      if (char.match(/[\x00-\x7F]/)) {
-        bytes += 1 // 半角文字
-      } else {
-        bytes += 2 // 全角文字
+      const code = char.charCodeAt(0)
+      
+      // ASCII文字（半角）
+      if (code <= 0x7F) {
+        bytes += 1
+      }
+      // 2バイト文字（全角など）
+      else if (code <= 0x7FF) {
+        bytes += 2
+      }
+      // 3バイト文字（絵文字など）
+      else if (code <= 0xFFFF) {
+        bytes += 3
+      }
+      // 4バイト文字（一部の絵文字）
+      else {
+        bytes += 4
       }
     }
     return bytes
