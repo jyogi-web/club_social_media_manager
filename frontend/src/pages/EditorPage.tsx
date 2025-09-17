@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { apiClient } from '../api/apiClient'
 import TwitterPreview from '../components/TwitterPreview'
+import TiptapEditor from '../components/TiptapEditor'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Upload, Sparkles, Send, RotateCcw, CheckCircle, AlertCircle } from "lucide-react"
@@ -30,20 +30,6 @@ export default function EditorPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState('')
 
-  // 半角全角を考慮したbyte数換算での文字数計算
-  const calculateTextBytes = (text: string) => {
-    let bytes = 0
-    for (let i = 0; i < text.length; i++) {
-      const char = text.charAt(i)
-      // 半角文字は1byte、全角文字は2byteとして計算
-      if (char.match(/[\x00-\x7F]/)) {
-        bytes += 1 // 半角文字
-      } else {
-        bytes += 2 // 全角文字
-      }
-    }
-    return bytes
-  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -137,16 +123,12 @@ export default function EditorPage() {
               {/* Text Input */}
               <div className="space-y-2">
                 <Label htmlFor="text">投稿テキスト</Label>
-                <Textarea
-                  id="text"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
+                <TiptapEditor
+                  content={text}
+                  onChange={setText}
                   placeholder="投稿したいテキストを入力してください..."
-                  className="min-h-32 resize-none"
+                  maxBytes={280}
                 />
-                <div className={`text-right text-sm ${calculateTextBytes(text) > 280 ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
-                  {calculateTextBytes(text) > 280 ? `- ${calculateTextBytes(text) - 280}byte` : `${calculateTextBytes(text)}/280byte`}
-                </div>
               </div>
 
               {/* Image Input */}
