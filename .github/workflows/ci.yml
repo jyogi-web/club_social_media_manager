@@ -1,8 +1,8 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches: [ main, develop, 'feature/*' ]
+    branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
 
@@ -10,9 +10,8 @@ env:
   NODE_VERSION: '20'
 
 jobs:
-  # Frontend Jobs
-  frontend-lint:
-    name: Frontend Lint & Type Check
+  test:
+    name: Test & Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -23,268 +22,21 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-
-      - name: Install frontend dependencies
-        run: |
-          cd frontend
-          npm install
-
-      - name: Run ESLint
-        run: |
-          cd frontend
-          npm run lint
-
-      - name: Run TypeScript type check
-        run: |
-          cd frontend
-          npm run typecheck
-
-  frontend-test:
-    name: Frontend Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install frontend dependencies
-        run: |
-          cd frontend
-          npm install
-
-      - name: Run tests with coverage
-        run: |
-          cd frontend
-          npm run test:coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: frontend/coverage/coverage-final.json
-          flags: frontend
-          name: frontend-coverage
-          fail_ci_if_error: false
-
-  frontend-build:
-    name: Frontend Build
-    runs-on: ubuntu-latest
-    needs: [frontend-lint, frontend-test]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install frontend dependencies
-        run: |
-          cd frontend
-          npm install
-
-      - name: Build frontend
-        run: |
-          cd frontend
-          npm run build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: frontend/dist/
-          retention-days: 7
-
-  # Backend Jobs
-  backend-lint:
-    name: Backend Lint & Type Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install backend dependencies
-        run: |
-          cd backend
-          npm install
-
-      - name: Run TypeScript type check
-        run: |
-          cd backend
-          npx tsc --noEmit
-
-  backend-test:
-    name: Backend Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install backend dependencies
-        run: |
-          cd backend
-          npm install
-
-      - name: Run tests with coverage
-        run: |
-          cd backend
-          npm run test:coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: backend/coverage/coverage-final.json
-          flags: backend
-          name: backend-coverage
-          fail_ci_if_error: false
-
-  backend-build:
-    name: Backend Build
-    runs-on: ubuntu-latest
-    needs: [backend-lint, backend-test]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install backend dependencies
-        run: |
-          cd backend
-          npm install
-
-      - name: Build backend
-        run: |
-          cd backend
-          npm run build
-
-  # Integration Job
-  integration:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    needs: [frontend-build, backend-build]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Download frontend build
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-          path: frontend/dist/
 
       - name: Install dependencies
         run: |
+          npm install
           cd frontend && npm install
           cd ../backend && npm install
 
-      - name: Run integration tests (placeholder)
-        run: |
-          echo "Integration tests would run here"
-          # cd integration-tests && npm test
+      - name: Run tests
+        run: npm run test
 
-  # Security Scan
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Run type check
+        run: npm run typecheck
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+      - name: Run lint (frontend only)
+        run: npm run lint
 
-      - name: Run npm audit for frontend
-        run: |
-          cd frontend
-          npm audit --audit-level moderate
-        continue-on-error: true
-
-      - name: Run npm audit for backend
-        run: |
-          cd backend
-          npm audit --audit-level moderate
-        continue-on-error: true
-
-  # Deployment Job (only on main branch)
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    needs: [frontend-build, backend-build, integration]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    environment: production
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Download frontend build
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-          path: frontend/dist/
-
-      - name: Deploy to Cloudflare Pages (Frontend)
-        run: |
-          cd frontend
-          echo "Frontend deployment would happen here"
-          # npx wrangler pages publish dist/
-
-      - name: Deploy to Cloudflare Workers (Backend)
-        run: |
-          cd backend
-          echo "Backend deployment would happen here"
-          # npm run deploy
-
-  # Notification Job
-  notify:
-    name: Notify
-    runs-on: ubuntu-latest
-    needs: [frontend-build, backend-build]
-    if: always()
-    steps:
-      - name: Notify on success
-        if: needs.frontend-build.result == 'success' && needs.backend-build.result == 'success'
-        run: |
-          echo "✅ All builds completed successfully!"
-
-      - name: Notify on failure
-        if: needs.frontend-build.result == 'failure' || needs.backend-build.result == 'failure'
-        run: |
-          echo "❌ Some builds failed!"
-          exit 1
+      - name: Build projects
+        run: npm run build

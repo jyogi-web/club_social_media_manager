@@ -15,7 +15,7 @@
     "test": "npm run test:run --workspace=frontend && npm run test:run --workspace=backend",
     "test:coverage": "npm run test:coverage --workspace=frontend && npm run test:coverage --workspace=backend",
     "lint": "npm run lint --workspace=frontend",
-    "typecheck": "npm run typecheck --workspace=frontend && npx tsc --noEmit --project backend/tsconfig.json",
+    "typecheck": "npm run typecheck --workspace=frontend && npm run typecheck --workspace=backend",
     "deploy": "./deploy.sh all",
     "deploy:backend": "./deploy.sh backend",
     "deploy:frontend": "./deploy.sh frontend",
