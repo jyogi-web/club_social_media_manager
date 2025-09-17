@@ -5,7 +5,6 @@
 ├── .gitignore             # Gitの管理対象外ファイル
 ├── package.json           # プロジェクト全体の依存関係
 ├── tsconfig.json          # TypeScriptの設定
-├── wrangler.toml          # Cloudflare Workersの設定
 ├── frontend/              # React + Viteのコード
 │   ├── public/            # 公開リソース
 │   ├── src/
