@@ -101,7 +101,7 @@ Please use a different name and try again. [code: 10053]
   "kv_namespaces": [
     {
       "binding": "CLUB_KV",
-      "id": "08268c358afd440785cfe385d5b9d557"
+      "id": "xxxxxxxxxxxxxxxxxxxxxxx"
     }
   ]
 }
@@ -178,10 +178,10 @@ cd backend
 cp .env.example .env
 
 # .envファイルを編集して実際の値を設定
-# DISCORD_APPLICATION_ID=1417852563822350426
-# DISCORD_PUBLIC_KEY=f547a7f50ed6c12ad8f09fd5121cd33292c2d72a5ab4c429bba12b12d91cac09
-# DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/1417930164125438165/D6ppXbOAoCusbqzYvWoVTU5cqZEct8tu4zOt0cjf-ik0la-BgPW7KuF33C6cBihHc16o
-# GEMINI_API_KEY=AIzaSyBngHywa0fKjI0pJdrQuzccisBVopnWjiI
+# DISCORD_APPLICATION_ID=xxxxxxxxxxxxxxxxxx
+# DISCORD_PUBLIC_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/xxxxxxxxxxxxxxxxxxx
+# GEMINI_API_KEY=xxxxxxxxxxxxxxxxxx
 ```
 
 ### 2. 本番環境の設定
@@ -193,10 +193,10 @@ cp .env.example .env
 wrangler deploy --minify
 
 # Secretsを設定
-echo "https://discord.com/api/webhooks/1417930164125438165/D6ppXbOAoCusbqzYvWoVTU5cqZEct8tu4zOt0cjf-ik0la-BgPW7KuF33C6cBihHc16o" | wrangler secret put DISCORD_WEBHOOK_URL
-echo "1417852563822350426" | wrangler secret put DISCORD_APPLICATION_ID
-echo "f547a7f50ed6c12ad8f09fd5121cd33292c2d72a5ab4c429bba12b12d91cac09" | wrangler secret put DISCORD_PUBLIC_KEY
-echo "AIzaSyBngHywa0fKjI0pJdrQuzccisBVopnWjiI" | wrangler secret put GEMINI_API_KEY
+echo "https://discord.com/api/webhooks/xxxxxxxxxxxxxxxxxxxxxxxxx" | wrangler secret put DISCORD_WEBHOOK_URL
+echo "xxxxxxxxxxxxxxxxxx" | wrangler secret put DISCORD_APPLICATION_ID
+echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" | wrangler secret put DISCORD_PUBLIC_KEY
+echo "xxxxxxxxxxxxxxxxxx" | wrangler secret put GEMINI_API_KEY
 
 # 最終デプロイ
 wrangler deploy --minify
